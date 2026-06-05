@@ -1,0 +1,334 @@
+# Sistema de Agendamento de Atividades
+
+Projeto desenvolvido para a disciplina de **Análise e Projeto de Algoritmos**.
+
+O sistema resolve um problema real de uma empresa que organiza diariamente treinamentos, palestras e reuniões — muitas delas com conflito de horário. A solução seleciona automaticamente o maior número possível de atividades sem sobreposição, além de permitir cadastro, busca, ordenação e comparação entre diferentes estratégias algorítmicas.
+
+---
+
+## Sumário
+
+- [Como executar](#como-executar)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Solução desenvolvida](#solução-desenvolvida)
+- [Algoritmos utilizados](#algoritmos-utilizados)
+- [Comparação entre as abordagens](#comparação-entre-as-abordagens)
+- [Exemplos de entrada e saída](#exemplos-de-entrada-e-saída)
+
+---
+
+## Como executar
+
+**Pré-requisito:** Python 3.10 ou superior.
+
+```bash
+# 1. Gerar os conjuntos de teste
+python testes/gerar_testes.py
+
+# 2. Iniciar o sistema
+python main.py
+```
+
+---
+
+## Estrutura do projeto
+
+```
+agendamento_atividades/
+│
+├── dados/
+│   ├── atividades.json          # Atividades cadastradas pelo usuário
+│   ├── teste_pequeno.json       # Teste 1 — 8 atividades
+│   ├── teste_medio.json         # Teste 2 — 15 atividades
+│   └── teste_grande.json        # Teste 3 — 32 atividades
+│
+├── modelos/
+│   └── atividade.py             # Classe Atividade (modelo base)
+│
+├── algoritmos/
+│   ├── merge_sort.py            # Merge Sort com critério variável
+│   ├── busca_binaria.py         # Busca Binária
+│   ├── guloso.py                # Algoritmo Guloso clássico
+│   └── programacao_dinamica.py  # Programação Dinâmica com pesos
+│
+├── gerenciador/
+│   └── gerenciador.py           # Cadastro, leitura e escrita em JSON
+│
+├── analise/
+│   └── desempenho.py            # Medição de tempo, memória e comparação
+│
+├── testes/
+│   └── gerar_testes.py          # Geração dos 3 conjuntos de teste
+│
+└── main.py                      # Menu principal (terminal)
+```
+
+---
+
+## Solução desenvolvida
+
+### Boas práticas adotadas
+
+O projeto foi desenvolvido seguindo três pilares:
+
+**Programação Orientada a Objetos (POO)**
+Cada responsabilidade do sistema foi encapsulada em uma classe:
+
+- `Atividade` — representa cada atividade com seus atributos e comportamentos
+- `Gerenciador` — responsável pelo cadastro, leitura e escrita em JSON
+- Módulos de algoritmos — cada algoritmo isolado no seu próprio arquivo
+
+**Modularidade**
+O sistema foi dividido em partes menores e independentes. O `main.py` funciona apenas como menu — não contém lógica de negócio. O `Gerenciador` é o único ponto de acesso ao arquivo JSON; nenhum outro módulo acessa os dados diretamente.
+
+**Funções pequenas**
+Cada função faz uma única coisa. Por exemplo, no Merge Sort, a divisão e a intercalação são funções separadas (`merge_sort` e `_merge`), respeitando o princípio de responsabilidade única.
+
+### Armazenamento de dados
+
+Os dados são persistidos em arquivos **JSON**, um formato leve e legível que se encaixa naturalmente com a estrutura de objetos em Python. Cada atividade é salva com todos os seus atributos:
+
+```json
+{
+    "codigo": "P01",
+    "nome": "Reunião de Abertura",
+    "inicio": "08:00",
+    "fim": "09:00",
+    "prioridade": 4,
+    "participantes": 12
+}
+```
+
+### Atributos de cada atividade
+
+| Atributo | Tipo | Descrição |
+|---|---|---|
+| codigo | str | Identificador único |
+| nome | str | Nome da atividade |
+| inicio | str | Horário de início (HH:MM) |
+| fim | str | Horário de fim (HH:MM) |
+| prioridade | int | Peso de 1 (baixa) a 5 (alta) |
+| participantes | int | Quantidade de participantes |
+
+A **prioridade** não é do usuário do sistema — ela é uma característica da própria atividade. Uma reunião com cliente tem prioridade maior que um coffee break, por exemplo. Esse atributo é usado como peso na Programação Dinâmica para maximizar o benefício total da agenda.
+
+---
+
+## Algoritmos utilizados
+
+### 1. Merge Sort — Ordenação
+
+Algoritmo de ordenação baseado na estratégia **dividir para conquistar**. A lista é dividida ao meio recursivamente até restar listas de um elemento, que são então intercaladas em ordem.
+
+```
+Lista original: [P05, P01, P03, P02, P04]
+                        ↓ divide
+            [P05, P01]      [P03, P02, P04]
+                ↓                  ↓
+          [P05] [P01]      [P03] [P02, P04]
+                ↓                  ↓
+            [P01, P05]     [P02, P03, P04]
+                        ↓ intercala
+            [P01, P02, P03, P04, P05]
+```
+
+**Complexidade:** O(n log n) — sempre, independente da entrada.
+
+O Merge Sort foi implementado com **critério variável** — a mesma função ordena por qualquer atributo:
+
+```python
+merge_sort(atividades, chave=por_horario_fim)    # para o algoritmo guloso
+merge_sort(atividades, chave=por_nome)           # para busca alfabética
+merge_sort(atividades, chave=por_prioridade)     # para exibição por importância
+```
+
+---
+
+### 2. Busca Binária — Busca de atividades
+
+Algoritmo de busca eficiente que exige lista ordenada. A cada passo, **descarta metade da lista** comparando o elemento do meio com o termo buscado.
+
+```
+Buscar "Reunião de Equipe" em lista ordenada de 8 elementos:
+
+[A, B, C, D, E, F, G, H]
+          ↑ meio
+  D < "Reunião"? → busca na metade direita
+          [E, F, G, H]
+              ↑ meio
+          F == "Reunião"? → ACHOU!
+```
+
+**Complexidade:** O(log n) — com 32 atividades, faz no máximo 5 comparações.
+
+O sistema implementa uma **busca inteligente em três etapas**:
+1. Busca binária por nome exato → O(log n)
+2. Busca binária por código → O(log n)
+3. Busca parcial por trecho do nome → O(n) *(fallback)*
+
+> **Importante:** A busca binária só funciona com lista ordenada. Por isso o Merge Sort é executado antes de qualquer busca binária.
+
+---
+
+### 3. Algoritmo Guloso — Seleção por quantidade
+
+Seleciona o **maior número possível** de atividades sem conflito de horário. A estratégia é sempre escolher a atividade que **termina mais cedo** dentre as compatíveis com a última selecionada.
+
+**Por que ordenar por horário de fim e não de início?**
+Ordenar por fim garante que sempre escolhemos a atividade que libera o horário mais cedo, deixando mais espaço para encaixar atividades futuras. Ordenar por início não dá essa garantia:
+
+```
+Atividades: A1(08–09), A2(08–11), A3(09–10)
+
+Ordenado por fim (correto):
+  → seleciona A1(08–09), depois A3(09–10) = 2 atividades ✓
+
+Ordenado por início (errado):
+  → seleciona A2(08–11), bloqueia A3 = 1 atividade ✗
+```
+
+**Passo a passo do algoritmo:**
+
+```
+1. Ordena por horário de fim (Merge Sort)
+2. Seleciona a primeira atividade automaticamente
+3. Para cada próxima atividade:
+   - Se começa APÓS o fim da última selecionada → seleciona
+   - Se conflita → descarta
+```
+
+**Complexidade:** O(n log n) — dominado pela ordenação.
+
+---
+
+### 4. Programação Dinâmica — Seleção por benefício
+
+Seleciona atividades sem conflito maximizando o **benefício total** (prioridade ou participantes). Diferente do guloso, considera o peso de cada atividade antes de decidir.
+
+**A tabela DP:**
+
+Para cada atividade `i`, o algoritmo pergunta: vale mais incluir ou excluir?
+
+```
+dp[i] = max(
+    dp[i-1],                            # excluir i: fica com o melhor anterior
+    peso[i] + dp[último compatível]     # incluir i: peso de i + melhor antes de i
+)
+```
+
+**Exemplo com 3 atividades:**
+
+```
+A1: 08:00–12:00  prioridade 5
+A2: 08:00–09:00  prioridade 1
+A3: 09:00–12:00  prioridade 1
+
+Guloso → seleciona A2 + A3 = 2 atividades, benefício = 1+1 = 2
+PD     → seleciona A1      = 1 atividade,  benefício = 5
+```
+
+A PD abriu mão de quantidade para obter maior benefício.
+
+**Reconstrução da solução:**
+A tabela `dp` guarda apenas os valores máximos, não quais atividades os formam. Por isso existe um passo de reconstrução que percorre a tabela de trás para frente e identifica quais atividades compõem a solução ótima.
+
+**Complexidade:** O(n log n) — a busca binária dentro do DP mantém a eficiência.
+
+---
+
+## Comparação entre as abordagens
+
+| Critério | Algoritmo Guloso | Programação Dinâmica |
+|---|---|---|
+| Objetivo | Maximizar quantidade | Maximizar benefício total |
+| Usa prioridade? | Não | Sim |
+| Estratégia | Decisão local (termina mais cedo) | Decisão global (testa incluir/excluir) |
+| Garante ótimo? | Apenas em quantidade | Sim, em benefício |
+| Complexidade | O(n log n) | O(n log n) |
+
+**Quando os resultados coincidem:**
+Se as atividades de maior prioridade também terminam cedo, ambos os algoritmos chegam à mesma solução.
+
+**Quando os resultados divergem:**
+Quando uma atividade de alta prioridade e longa duração compete com várias atividades de baixa prioridade e curta duração. O guloso prefere as curtas (mais quantidade); a PD prefere a longa (mais benefício).
+
+---
+
+## Exemplos de entrada e saída
+
+### Entrada — Teste Pequeno (8 atividades)
+
+```
+[P01] Reunião de Abertura      | 08:00–09:00 | Prioridade: 4 | Participantes: 12
+[P02] Treinamento de Segurança | 08:30–10:00 | Prioridade: 5 | Participantes: 30
+[P03] Palestra de Inovação     | 09:00–10:30 | Prioridade: 3 | Participantes: 50
+[P04] Coffee Break             | 10:00–10:30 | Prioridade: 1 | Participantes: 40
+[P05] Workshop de Liderança    | 10:30–12:00 | Prioridade: 4 | Participantes: 20
+[P06] Reunião de Equipe        | 11:00–12:00 | Prioridade: 3 | Participantes: 10
+[P07] Alinhamento Estratégico  | 13:00–14:00 | Prioridade: 5 | Participantes: 15
+[P08] Encerramento do Dia      | 14:00–15:00 | Prioridade: 2 | Participantes: 60
+```
+
+### Saída — Algoritmo Guloso
+
+```
+============================================================
+  RESULTADO — ALGORITMO GULOSO
+============================================================
+  Total de atividades selecionadas: 5
+
+  01. [P01] Reunião de Abertura      | 08:00–09:00 | Prioridade: 4
+  02. [P04] Coffee Break             | 10:00–10:30 | Prioridade: 1
+  03. [P05] Workshop de Liderança    | 10:30–12:00 | Prioridade: 4
+  04. [P07] Alinhamento Estratégico  | 13:00–14:00 | Prioridade: 5
+  05. [P08] Encerramento do Dia      | 14:00–15:00 | Prioridade: 2
+
+------------------------------------------------------------
+  Prioridade acumulada  : 16
+  Participantes totais  : 147
+============================================================
+```
+
+### Saída — Programação Dinâmica (peso: prioridade)
+
+```
+============================================================
+  RESULTADO — PROGRAMAÇÃO DINÂMICA (peso: prioridade)
+============================================================
+  Total de atividades selecionadas: 4
+
+  01. [P01] Reunião de Abertura      | 08:00–09:00 | Prioridade: 4
+  02. [P02] Treinamento de Segurança | 08:30–10:00 | Prioridade: 5
+  03. [P07] Alinhamento Estratégico  | 13:00–14:00 | Prioridade: 5
+  04. [P08] Encerramento do Dia      | 14:00–15:00 | Prioridade: 2
+
+------------------------------------------------------------
+  Benefício total (prioridade    ): 16
+  Prioridade acumulada           : 16
+  Participantes totais           : 117
+============================================================
+```
+
+### Saída — Comparação de desempenho
+
+```
+=================================================================
+  COMPARAÇÃO DE DESEMPENHO
+=================================================================
+  Atividades na entrada : 8
+  Critério de peso (PD) : prioridade
+-----------------------------------------------------------------
+  Métrica                              Guloso    P. Dinâmica
+-----------------------------------------------------------------
+  Qtd. selecionadas                         5              4
+  Benefício total                          16             16
+  Tempo (ms)                           0.0312         0.0487
+  Memória pico (KB)                    0.2100         0.3200
+=================================================================
+
+  ANÁLISE:
+  → Guloso selecionou mais atividades (5 vs 4)
+  → Ambos obtiveram o mesmo benefício total
+  → Guloso foi mais rápido
+=================================================================
+```
