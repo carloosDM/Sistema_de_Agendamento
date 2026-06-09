@@ -1,5 +1,5 @@
 from modelos.atividade import Atividade
-from algoritimos import merge_sort
+from algoritimos.merge_sort import merge_sort, por_nome
 
 
 def busca_binaria_por_nome(atividades: list[Atividade], nome_busca: str) -> Atividade | None:
@@ -92,9 +92,7 @@ def busca_por_nome_parcial(atividades: list[Atividade], trecho: str) -> list[Ati
     return [a for a in atividades if trecho_alvo in a.nome.lower()]
 
 
-# ------------------------------------------------------------------ #
-#  Função principal de busca (usada pelo menu)                         #
-# ------------------------------------------------------------------ #
+#  Função principal de busca (usada pelo menu)
 
 def buscar_atividade(atividades: list[Atividade], termo: str) -> list[Atividade]:
     """
@@ -118,7 +116,7 @@ def buscar_atividade(atividades: list[Atividade], termo: str) -> list[Atividade]
         return []
 
     # Tenta busca binária por nome exato
-    ordenadas_nome = merge_sort(atividades, chave=merge_sort.por_nome)
+    ordenadas_nome = merge_sort(atividades, chave=por_nome)
     resultado = busca_binaria_por_nome(ordenadas_nome, termo)
     if resultado:
         return [resultado]
@@ -131,3 +129,4 @@ def buscar_atividade(atividades: list[Atividade], termo: str) -> list[Atividade]
 
     # Fallback: busca parcial por nome
     return busca_por_nome_parcial(atividades, termo)
+

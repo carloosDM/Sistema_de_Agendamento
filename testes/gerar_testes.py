@@ -2,9 +2,9 @@ import json
 import os
 
 
-# ------------------------------------------------------------------ #
-#  Conjuntos de teste                                                  #
-# ------------------------------------------------------------------ #
+
+#  Conjuntos de teste                                                  
+
 
 TESTE_PEQUENO = [
     {"codigo": "P01", "nome": "Reunião de Abertura",       "inicio": "08:00", "fim": "09:00", "prioridade": 4, "participantes": 12},
@@ -71,9 +71,9 @@ TESTE_GRANDE = [
 ]
 
 
-# ------------------------------------------------------------------ #
-#  Geração dos arquivos                                                #
-# ------------------------------------------------------------------ #
+
+#  Geração dos arquivos                                                
+
 
 def gerar_arquivos(pasta_destino: str = "dados") -> None:
     """

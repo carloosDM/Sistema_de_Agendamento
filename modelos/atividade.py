@@ -9,9 +9,8 @@ class Atividade:
         prioridade  (int) : Peso da atividade de 1 (baixa) a 5 (alta)
         participantes(int): Quantidade de participantes
     """
-    def __init__(self, codigo: str, nome: str, inicio: str, fim: str, # obs: O self representa o próprio objeto (instância) que está usando o método
-                 prioridade: int, participantes: int):
-        self.codigo = codigo
+    def __init__(self, codigo: str, nome: str, inicio: str, fim: str, prioridade: int, participantes: int):
+        self.codigo = codigo  # obs: O self representa o próprio objeto (instância) que está usando o método
         self.nome = nome
         self.inicio = inicio
         self.fim = fim
@@ -39,8 +38,7 @@ class Atividade:
         Verifica se esta atividade tem sobreposição de horário com outra.
         Duas atividades conflitam quando uma começa antes da outra terminar.
         """
-        return self.inicio_em_minutos() < outra.fim_em_minutos() and \
-               outra.inicio_em_minutos() < self.fim_em_minutos()
+        return self.inicio_em_minutos() < outra.fim_em_minutos() and outra.inicio_em_minutos() < self.fim_em_minutos()
 
     #  Serialização
 

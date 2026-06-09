@@ -67,17 +67,8 @@ def selecionar_dinamico(atividades: list[Atividade],
     def peso(atividade: Atividade) -> int:
         return atividade.participantes if usar_participantes else atividade.prioridade
 
-    # ------------------------------------------------------------------ #
-    #  Passo 2: Preenchimento da tabela DP                                 #
-    #                                                                      #
-    #  dp[i] = maior benefício considerando as atividades de 0 até i      #
-    #                                                                      #
-    #  Para cada atividade i, temos duas opções:                           #
-    #    A) NÃO incluir i → dp[i] = dp[i-1]                               #
-    #    B) INCLUIR i     → dp[i] = peso[i] + dp[último compatível com i] #
-    #                                                                      #
-    #  Escolhemos o maior entre A e B.                                     #
-    # ------------------------------------------------------------------ #
+    #  Passo 2: Preenchimento da tabela DP                       
+    #  dp[i] = maior benefício considerando as atividades de 0 até i 
 
     dp = [0] * n
     dp[0] = peso(ordenadas[0])
@@ -92,9 +83,8 @@ def selecionar_dinamico(atividades: list[Atividade],
 
         dp[i] = max(beneficio_incluindo, beneficio_excluindo)
 
-    # ------------------------------------------------------------------ #
-    #  Passo 3: Reconstrução — quais atividades formam a solução ótima?   #
-    # ------------------------------------------------------------------ #
+   
+    #  Passo 3: Reconstrução — quais atividades formam a solução
 
     selecionadas = []
     i = n - 1
@@ -115,8 +105,7 @@ def selecionar_dinamico(atividades: list[Atividade],
     return selecionadas
 
 
-def exibir_resultado_dinamico(selecionadas: list[Atividade],
-                              usar_participantes: bool = False) -> None:
+def exibir_resultado_dinamico(selecionadas: list[Atividade], usar_participantes: bool = False) -> None:
     """
     Exibe no terminal o resultado da Programação Dinâmica de forma formatada.
 
@@ -137,8 +126,7 @@ def exibir_resultado_dinamico(selecionadas: list[Atividade],
 
     print(f"  Total de atividades selecionadas: {len(selecionadas)}\n")
 
-    for i, atividade in enumerate(selecionadas, start=1):
-        print(f"  {i:02}. {atividade}")
+    for i, atividade in enumerate(selecionadas, start=1): print(f"  {i:02}. {atividade}")
 
     prioridade_total    = sum(a.prioridade     for a in selecionadas)
     participantes_total = sum(a.participantes  for a in selecionadas)
@@ -146,7 +134,6 @@ def exibir_resultado_dinamico(selecionadas: list[Atividade],
         a.participantes if usar_participantes else a.prioridade
         for a in selecionadas
     )
-
     print("\n" + "-" * 60)
     print(f"  Benefício total ({criterio:13}): {beneficio_total}")
     print(f"  Prioridade acumulada           : {prioridade_total}")

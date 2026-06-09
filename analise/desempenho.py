@@ -1,4 +1,4 @@
-import time
+import time # medir a eficiência dos meu algoritmo
 import tracemalloc
 
 from modelos.atividade import Atividade
@@ -6,23 +6,12 @@ from algoritimos.guloso import selecionar_guloso
 from algoritimos.programacao_dinamica import selecionar_dinamico
 from algoritimos.merge_sort import merge_sort, por_horario_fim, por_horario_inicio, por_prioridade, por_nome
 
+#  Medição
 
-# ------------------------------------------------------------------ #
-#  Medição                                                             #
-# ------------------------------------------------------------------ #
 
-def medir_tempo(funcao, *args) -> tuple:
-    """
-    Executa uma função e mede seu tempo de execução em milissegundos.
+def medir_tempo(funcao, *args) -> tuple: # *args  : Argumentos passados para a função.
 
-    Parâmetros:
-        funcao : Função a ser medida.
-        *args  : Argumentos passados para a função.
-
-    Retorna:
-        (resultado, tempo_ms): Resultado da função e tempo gasto em ms.
-    """
-    inicio = time.perf_counter()
+    inicio = time.perf_counter() # Executa uma função e mede seu tempo de execução em milissegundos.
     resultado = funcao(*args)
     fim = time.perf_counter()
 
@@ -31,16 +20,7 @@ def medir_tempo(funcao, *args) -> tuple:
 
 
 def medir_memoria(funcao, *args) -> tuple:
-    """
-    Executa uma função e mede o pico de memória utilizada em KB.
 
-    Parâmetros:
-        funcao : Função a ser medida.
-        *args  : Argumentos passados para a função.
-
-    Retorna:
-        (resultado, memoria_kb): Resultado da função e memória usada em KB.
-    """
     tracemalloc.start()
     resultado = funcao(*args)
     _, pico = tracemalloc.get_traced_memory()
@@ -50,26 +30,16 @@ def medir_memoria(funcao, *args) -> tuple:
     return resultado, memoria_kb
 
 
-# ------------------------------------------------------------------ #
-#  Comparação entre algoritmos                                         #
-# ------------------------------------------------------------------ #
+#  Comparação entre algoritmos                                         
 
-def comparar_algoritmos(atividades: list[Atividade],
-                        usar_participantes: bool = False) -> dict:
+def comparar_algoritmos(atividades: list[Atividade], usar_participantes: bool = False) -> dict:
     """
     Executa o Algoritmo Guloso e a Programação Dinâmica sobre o mesmo
     conjunto de atividades e coleta métricas de desempenho de ambos.
-
-    Parâmetros:
-        atividades         (list[Atividade]): Conjunto de entrada.
-        usar_participantes (bool)           : Peso usado na PD.
-
-    Retorna:
-        dict com os resultados e métricas dos dois algoritmos.
     """
     criterio = "participantes" if usar_participantes else "prioridade"
 
-    # --- Guloso ---
+    # Guloso 
     result_guloso,  tempo_guloso  = medir_tempo(selecionar_guloso, atividades)
     _,              mem_guloso    = medir_memoria(selecionar_guloso, atividades)
 
@@ -125,19 +95,10 @@ def comparar_ordenacoes(atividades: list[Atividade]) -> dict:
 
     return resultados
 
-
-# ------------------------------------------------------------------ #
-#  Exibição                                                            #
-# ------------------------------------------------------------------ #
+#  Exibição
 
 def exibir_comparacao(metricas: dict) -> None:
-    """
-    Exibe no terminal a comparação entre Guloso e Programação Dinâmica
-    de forma tabular e legível.
 
-    Parâmetros:
-        metricas (dict): Resultado retornado por comparar_algoritmos().
-    """
     g = metricas["guloso"]
     d = metricas["dinamico"]
 
